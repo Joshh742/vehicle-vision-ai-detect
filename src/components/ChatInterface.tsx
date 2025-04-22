@@ -89,26 +89,12 @@ export function ChatInterface() {
     
     try {
       const analysisResult = await analyzeVehicleImage(selectedImage);
-      let vehicleData: VehicleAnalysis;
       
-      try {
-        vehicleData = JSON.parse(analysisResult) as VehicleAnalysis;
-      } catch (e) {
-        vehicleData = {
-          jenisKendaraan: "Unknown",
-          namaModel: "Unidentified",
-          fiturKhusus: [analysisResult],
-          tingkatKeyakinan: "low"
-        };
-      }
-      
-      const responseContent = generateResponseMessage(vehicleData);
       const assistantMsg: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
-        content: responseContent,
-        timestamp: new Date(),
-        vehicleAnalysis: vehicleData
+        content: analysisResult,
+        timestamp: new Date()
       };
       
       setMessages(prev => [...prev, assistantMsg]);
@@ -118,7 +104,7 @@ export function ChatInterface() {
       const errorMsg: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
-        content: "Sorry, I encountered an error analyzing this image. Please try again with a clearer image.",
+        content: "Maaf, saya mengalami kesalahan saat menganalisis gambar. Silakan coba lagi dengan gambar yang lebih jelas.",
         timestamp: new Date()
       };
       
