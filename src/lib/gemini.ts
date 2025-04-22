@@ -17,7 +17,22 @@ export async function analyzeVehicleImage(imageBase64: string): Promise<string> 
     
     // Create parts for the prompt in Indonesian
     const textPart: Part = {
-      text: "Identifikasi kendaraan dalam gambar ini. Berikan informasi berikut dalam Bahasa Indonesia secara deskriptif: 1) Jenis kendaraan (mobil, motor, sepeda, truk, bus, dll), 2) Nama atau model spesifik jika dapat diidentifikasi, 3) Fitur-fitur khusus yang terlihat. Jika bukan kendaraan, jelaskan bahwa ini bukan kendaraan. Buat penjelasan singkat dan jelas dalam paragraf, tanpa menggunakan format JSON."
+      text: `Identifikasi kendaraan dalam gambar ini dan berikan informasi berikut dalam Bahasa Indonesia:
+
+1. Jenis Kendaraan:
+   - Bermotor atau Non-motor
+   - Kategori spesifik (mobil, motor, sepeda, dll)
+
+2. Merk Kendaraan:
+   - Nama produsen/merk
+   - Model spesifik (jika terlihat)
+
+3. Fitur Utama:
+   - 3-4 fitur paling mencolok
+   - Warna dominan
+   - Karakteristik khusus
+
+Berikan penjelasan dalam format yang mudah dibaca, tanpa menggunakan format teknis seperti JSON. Gunakan bahasa yang sederhana dan mudah dimengerti.`
     };
     
     const imagePart: Part = {
@@ -36,3 +51,4 @@ export async function analyzeVehicleImage(imageBase64: string): Promise<string> 
     return "Maaf, saya tidak dapat menganalisis gambar ini dengan baik. Mohon coba lagi dengan gambar yang lebih jelas.";
   }
 }
+
