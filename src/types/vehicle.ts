@@ -1,9 +1,9 @@
 
 export interface VehicleAnalysis {
-  vehicleType: string;
-  modelName: string;
-  features: string[];
-  confidence: 'high' | 'medium' | 'low' | 'none';
+  jenisKendaraan: string;
+  namaModel: string;
+  fiturKhusus: string[];
+  tingkatKeyakinan: 'tinggi' | 'sedang' | 'rendah' | 'tidak ada';
 }
 
 export interface ChatMessage {
@@ -14,3 +14,4 @@ export interface ChatMessage {
   imageUrl?: string;
   vehicleAnalysis?: VehicleAnalysis;
 }
+

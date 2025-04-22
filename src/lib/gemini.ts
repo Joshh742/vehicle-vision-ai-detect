@@ -15,9 +15,9 @@ export async function analyzeVehicleImage(imageBase64: string): Promise<string> 
     // Prepare the image data
     const fileData = imageBase64.split(",")[1];
     
-    // Create parts for the prompt
+    // Create parts for the prompt in Indonesian
     const textPart: Part = {
-      text: "Identify this vehicle in the image. Please provide: 1) The exact type of vehicle (car, motorcycle, bicycle, truck, bus, etc.), 2) The specific name or model if identifiable, 3) Any distinctive features. If it's not a vehicle, clearly state that it's not a vehicle. Respond in JSON format with fields: vehicleType, modelName, features, and confidence (high/medium/low). Keep the response concise."
+      text: "Identifikasi kendaraan dalam gambar ini. Berikan informasi berikut dalam Bahasa Indonesia: 1) Jenis kendaraan (mobil, motor, sepeda, truk, bus, dll), 2) Nama atau model spesifik jika dapat diidentifikasi, 3) Fitur-fitur khusus yang terlihat. Jika bukan kendaraan, jelaskan bahwa ini bukan kendaraan. Berikan respons dalam format JSON dengan bidang: jenisKendaraan, namaModel, fiturKhusus, dan tingkatKeyakinan (tinggi/sedang/rendah). Buat penjelasan singkat dan jelas."
     };
     
     const imagePart: Part = {
@@ -34,10 +34,11 @@ export async function analyzeVehicleImage(imageBase64: string): Promise<string> 
   } catch (error) {
     console.error("Error analyzing image:", error);
     return JSON.stringify({
-      vehicleType: "Error",
-      modelName: "Unable to analyze image",
-      features: [],
-      confidence: "none"
+      jenisKendaraan: "Error",
+      namaModel: "Tidak dapat menganalisis gambar",
+      fiturKhusus: [],
+      tingkatKeyakinan: "tidak ada"
     });
   }
 }
+

@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +24,6 @@ export function ChatInterface() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -76,7 +74,6 @@ export function ChatInterface() {
   const processVehicleImage = async () => {
     if (!selectedImage) return;
     
-    // Add user message with image
     const userMsgId = Date.now().toString();
     const userMsg: ChatMessage = {
       id: userMsgId,
@@ -91,23 +88,20 @@ export function ChatInterface() {
     setIsProcessing(true);
     
     try {
-      // Process with Gemini API
       const analysisResult = await analyzeVehicleImage(selectedImage);
       let vehicleData: VehicleAnalysis;
       
       try {
         vehicleData = JSON.parse(analysisResult) as VehicleAnalysis;
       } catch (e) {
-        // If not valid JSON, create a structured response
         vehicleData = {
-          vehicleType: "Unknown",
-          modelName: "Unidentified",
-          features: [analysisResult],
-          confidence: "low"
+          jenisKendaraan: "Unknown",
+          namaModel: "Unidentified",
+          fiturKhusus: [analysisResult],
+          tingkatKeyakinan: "low"
         };
       }
       
-      // Add assistant response
       const responseContent = generateResponseMessage(vehicleData);
       const assistantMsg: ChatMessage = {
         id: Date.now().toString(),
@@ -139,7 +133,6 @@ export function ChatInterface() {
     if (selectedImage) {
       processVehicleImage();
     } else if (inputValue.trim()) {
-      // Just a text message without image
       const userMsg: ChatMessage = {
         id: Date.now().toString(),
         role: "user",
@@ -149,7 +142,6 @@ export function ChatInterface() {
       
       setMessages(prev => [...prev, userMsg]);
       
-      // Simple response for text-only queries
       setTimeout(() => {
         const assistantMsg: ChatMessage = {
           id: Date.now().toString(),
@@ -165,24 +157,31 @@ export function ChatInterface() {
   };
 
   const generateResponseMessage = (analysis: VehicleAnalysis): string => {
-    if (analysis.vehicleType.toLowerCase() === "error") {
-      return "I couldn't analyze this image properly. Please try again with a clearer image.";
+    if (analysis.jenisKendaraan.toLowerCase() === "error") {
+      return "Maaf, saya tidak dapat menganalisis gambar ini dengan baik. Mohon coba lagi dengan gambar yang lebih jelas.";
     }
     
-    if (analysis.vehicleType.toLowerCase() === "not a vehicle") {
-      return "This doesn't appear to be a vehicle. Please upload an image of a vehicle for analysis.";
+    if (analysis.jenisKendaraan.toLowerCase() === "not a vehicle" || 
+        analysis.jenisKendaraan.toLowerCase() === "bukan kendaraan") {
+      return "Sepertinya ini bukan gambar kendaraan. Mohon unggah gambar kendaraan untuk dianalisis.";
     }
     
-    const features = analysis.features && analysis.features.length > 0 
-      ? `\n\nDistinctive features: ${analysis.features.join(", ")}`
+    const fiturKhusus = analysis.fiturKhusus && analysis.fiturKhusus.length > 0 
+      ? `\n\nFitur Khusus:\n${analysis.fiturKhusus.join("\n• ")}`
       : "";
     
-    return `I've identified this as a ${analysis.vehicleType}.\n${analysis.modelName ? `Model: ${analysis.modelName}` : ""}${features}\n\nConfidence: ${analysis.confidence}`;
+    return `Hasil Analisis Kendaraan:
+  
+📌 Jenis: ${analysis.jenisKendaraan}
+🚗 Model: ${analysis.namaModel || "Tidak teridentifikasi"}${fiturKhusus}
+
+✨ Tingkat Keyakinan: ${analysis.tingkatKeyakinan}
+
+Silakan unggah gambar lain untuk analisis lebih lanjut!`;
   };
 
   return (
     <div className="flex flex-col h-[80vh] w-full max-w-3xl mx-auto">
-      {/* Chat messages area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/5 rounded-lg backdrop-blur-sm">
         {messages.map((message) => (
           <div
@@ -206,22 +205,22 @@ export function ChatInterface() {
             
             <p className="whitespace-pre-wrap">{message.content}</p>
             
-            {message.vehicleAnalysis && message.vehicleAnalysis.vehicleType !== "Error" && (
+            {message.vehicleAnalysis && message.vehicleAnalysis.jenisKendaraan !== "Error" && (
               <Card className="mt-3 p-2 bg-blue-50 dark:bg-gray-700/50">
                 <div className="flex items-center gap-2 text-sm font-medium">
                   <Car size={16} />
-                  <span>{message.vehicleAnalysis.vehicleType}</span>
-                  {message.vehicleAnalysis.modelName && (
+                  <span>{message.vehicleAnalysis.jenisKendaraan}</span>
+                  {message.vehicleAnalysis.namaModel && (
                     <span className="ml-2 px-2 py-0.5 rounded-full bg-blue-100 dark:bg-gray-600 text-xs">
-                      {message.vehicleAnalysis.modelName}
+                      {message.vehicleAnalysis.namaModel}
                     </span>
                   )}
                 </div>
                 
-                {message.vehicleAnalysis.features && message.vehicleAnalysis.features.length > 0 && (
+                {message.vehicleAnalysis.fiturKhusus && message.vehicleAnalysis.fiturKhusus.length > 0 && (
                   <div className="mt-1 text-xs">
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {message.vehicleAnalysis.features.map((feature, i) => (
+                      {message.vehicleAnalysis.fiturKhusus.map((feature, i) => (
                         <span 
                           key={i} 
                           className="px-2 py-0.5 bg-gray-100 dark:bg-gray-600 rounded"
@@ -243,7 +242,6 @@ export function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
       
-      {/* Image upload area */}
       {selectedImage && (
         <div className="relative mt-4 mb-2">
           <Button
@@ -262,7 +260,6 @@ export function ChatInterface() {
         </div>
       )}
       
-      {/* Input area */}
       <div className="mt-4 flex gap-2 items-end">
         <div
           className={cn(
