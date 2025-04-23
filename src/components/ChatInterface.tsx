@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ export function ChatInterface() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [lastImageAnalysis, setLastImageAnalysis] = useState<string | null>(null); // NEW: Store last analysis result
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +91,10 @@ export function ChatInterface() {
     
     try {
       const analysisResult = await analyzeVehicleImage(selectedImage);
-      
+
+      // Simpan hasil analisis agar bisa digunakan untuk pertanyaan berikutnya
+      setLastImageAnalysis(analysisResult);
+
       const assistantMsg: ChatMessage = {
         id: Date.now().toString(),
         role: "assistant",
@@ -115,6 +120,7 @@ export function ChatInterface() {
     }
   };
 
+  // UTAMA: proses pertanyaan setelah upload gambar pakai konteks analisis gambar terakhir (jika ada)
   const processTextQuestion = async () => {
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -128,7 +134,14 @@ export function ChatInterface() {
     setIsProcessing(true);
 
     try {
-      const answer = await askIndonesianQuestion(userMsg.content);
+      let answer: string;
+      // Jika ada analisis gambar terakhir, lekatkan sebagai konteks ke pertanyaan
+      if (lastImageAnalysis) {
+        const composedQuestion = `Berikut adalah hasil analisis AI tentang gambar kendaraan yang baru saja saya upload:\n\n${lastImageAnalysis}\n\nSekarang, jawab pertanyaan berikut BERDASARKAN informasi tentang kendaraan di atas (jika relevan):\n"${userMsg.content}"\n\nJawaban:`;
+        answer = await askIndonesianQuestion(composedQuestion);
+      } else {
+        answer = await askIndonesianQuestion(userMsg.content);
+      }
 
       const assistantMsg: ChatMessage = {
         id: Date.now().toString(),
@@ -317,3 +330,5 @@ Silakan unggah gambar lain untuk analisis lebih lanjut!`;
     </div>
   );
 }
+
+// Catatan: File ini sudah mulai panjang (lebih dari 320 baris). Disarankan refactor nanti jika ingin menambah fitur lagi!
