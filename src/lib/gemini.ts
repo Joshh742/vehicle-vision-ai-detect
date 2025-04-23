@@ -52,3 +52,25 @@ Berikan penjelasan dalam format yang mudah dibaca, tanpa menggunakan format tekn
   }
 }
 
+/**
+ * Fungsi untuk pertanyaan sederhana berbahasa Indonesia (siapa, kapan, penjumlahan, dll)
+ * Menghasilkan jawaban ringkas, mudah dimengerti, dan tanpa format teknis.
+ */
+export async function askIndonesianQuestion(question: string): Promise<string> {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `Jawablah pertanyaan berikut dalam bahasa Indonesia yang sederhana, jelas, dan mudah dimengerti. Hindari menggunakan format teknis seperti kode, JSON, atau tabel dalam jawabanmu. Jika pertanyaan berupa operasi matematika sederhana, berikan jawabannya dan langkahnya secara singkat.
+
+Pertanyaan: "${question}"
+Jawaban:`;
+
+    const result = await model.generateContent([
+      { text: prompt }
+    ]);
+
+    return result.response.text();
+  } catch (error) {
+    console.error("Error answering Indonesian question:", error);
+    return "Maaf, saya tidak dapat menjawab pertanyaan tersebut saat ini.";
+  }
+}

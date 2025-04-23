@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { analyzeVehicleImage } from "@/lib/gemini";
+import { analyzeVehicleImage, askIndonesianQuestion } from "@/lib/gemini";
 import { ChatMessage, VehicleAnalysis } from "@/types/vehicle";
 import { Send, Upload, Car, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -115,30 +115,50 @@ export function ChatInterface() {
     }
   };
 
+  const processTextQuestion = async () => {
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: "user",
+      content: inputValue,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+    setIsProcessing(true);
+
+    try {
+      const answer = await askIndonesianQuestion(userMsg.content);
+
+      const assistantMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: answer,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch (error) {
+      console.error("Error answering question:", error);
+
+      const errorMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Maaf, saya tidak dapat menjawab pertanyaan tersebut.",
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleSendMessage = () => {
     if (selectedImage) {
       processVehicleImage();
     } else if (inputValue.trim()) {
-      const userMsg: ChatMessage = {
-        id: Date.now().toString(),
-        role: "user",
-        content: inputValue,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, userMsg]);
-      
-      setTimeout(() => {
-        const assistantMsg: ChatMessage = {
-          id: Date.now().toString(),
-          role: "assistant",
-          content: "To identify a vehicle, please upload an image of it!",
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, assistantMsg]);
-      }, 500);
-      
-      setInputValue("");
+      processTextQuestion();
     }
   };
 
